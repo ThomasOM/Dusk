@@ -1,0 +1,6 @@
+name: Plugin
+version: ${project.version}
+author: Test
+main: me.thomazz.reach.ReachPlugin
+depend:
+  - packetevents

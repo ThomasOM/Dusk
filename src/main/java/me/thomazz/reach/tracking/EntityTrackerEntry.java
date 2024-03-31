@@ -1,0 +1,69 @@
+package me.thomazz.reach.tracking;
+
+import lombok.Getter;
+import lombok.Setter;
+import me.thomazz.reach.util.Area;
+import me.thomazz.reach.util.Constants;
+
+/**
+ * Tracking unit to determine the position of an entity on the client.
+ * Uses an area for approximation in the case multiple positions are possible.
+ */
+@Getter
+@Setter
+public class EntityTrackerEntry {
+    private final Area base = new Area(); // Interpolation target
+    private final Area position = new Area(); // Area containing all possible client positions
+
+    private int interpolation; // Interpolation ticks
+    private boolean certain; // If certain the client has received the interpolation target
+
+    public EntityTrackerEntry(double x, double y, double z) {
+        this.base.set(x, y, z);
+        this.position.set(x, y, z);
+    }
+
+    public void move(double dx, double dy, double dz) {
+        this.base.add(dx, dy, dz);
+        this.interpolation = 3;
+        this.certain = false;
+    }
+
+    public void teleport(double x, double y, double z) {
+        double errorH = Constants.MIN_TELEPORT_HORIZONTAL;
+        double errorV = Constants.MIN_TELEPORT_VERTICAL;
+
+        // If the distance is too close to the client position it is possible for the base to remain unchanged
+        if (this.position.distanceX(x) < errorH && this.position.distanceY(y) < errorV && this.position.distanceZ(z) < errorH) {
+            this.base.set(x, y, z);
+            this.base.expand(errorH, errorV, errorH);
+        } else {
+            this.base.set(x, y, z);
+        }
+
+        this.interpolation = 3;
+        this.certain = false;
+    }
+
+    // Marks the interpolation target as certainly received by the client
+    public void markCertain() {
+        this.certain = true;
+    }
+
+    // Client-side interpolation
+    public void interpolate() {
+        /*
+        If uncertain we need to assume all cases for interpolation or no interpolation.
+        By including the interpolation target in the position all scenarios from 3 to 0 interpolation ticks are handled.
+        We can start shrinking the position area once we are certain the client has received the target.
+         */
+        if (!this.certain) {
+            this.position.contain(this.base);
+            return;
+        }
+
+        if (this.interpolation > 0) {
+            this.position.interpolate(this.base, this.interpolation--);
+        }
+    }
+}
