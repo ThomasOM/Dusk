@@ -38,6 +38,7 @@ public class EntityTracker {
         this.getEntry(id).ifPresent(entry -> entry.teleport(x, y, z));
     }
 
+    // Called when second pong is received for move or teleport to confirm the client has received the update
     public void markCertain(int id) {
         this.getEntry(id).ifPresent(EntityTrackerEntry::markCertain);
     }
