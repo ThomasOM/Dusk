@@ -282,7 +282,10 @@ public class PlayerData {
         }
 
         // Mouse input is done before any sneaking updates
-        float eyeHeight = this.wasSneaking ? 1.27F : 1.62F;
+        float eyeHeight = 1.62F;
+        if (this.wasSneaking) {
+            eyeHeight -= 0.08F;
+        }
 
         // Previous position since movement is done after attacking in the client tick
         Vector3d eye = this.locO.getPos().add(0, eyeHeight, 0, new Vector3d());
