@@ -138,6 +138,10 @@ public class Area {
         return z >= this.minZ && z <= this.maxZ ? 0.0 : Math.min(Math.abs(z - this.minZ), Math.abs(z - this.maxZ));
     }
 
+    public boolean isInside(double x, double y, double z) {
+        return x > this.minX && x < this.maxX && y > this.minY && y < this.maxY && z > this.minZ && z < maxZ;
+    }
+
     private double interpolate(double value, double destination, int interpolation) {
         return value + (destination - value) / (double) interpolation;
     }

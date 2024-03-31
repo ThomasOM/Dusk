@@ -26,6 +26,7 @@ import me.thomazz.reach.util.Constants;
 import me.thomazz.reach.util.Location;
 import me.thomazz.reach.util.MinecraftMath;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.PluginManager;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
 
@@ -259,17 +260,17 @@ public class PlayerData {
         float width = Constants.PLAYER_BOX_WIDTH;
         float height =  Constants.PLAYER_BOX_HEIGHT;
 
-        Area boundingBox = new Area(position)
+        Area box = new Area(position)
             .expand(width / 2.0, 0.0, width / 2.0)
             .addCoord(0.0, height, 0.0);
 
         // The hitbox is actually 0.1 blocks bigger than the bounding box
         float offset = Constants.COLLISION_BORDER_SIZE;
-        boundingBox.expand(offset, offset, offset);
+        box.expand(offset, offset, offset);
 
         // Compensate for fast math errors in the look vector calculations (Can remove if support not needed)
         double error = Constants.FAST_MATH_ERROR;
-        boundingBox.expand(error, error, error);
+        box.expand(error, error, error);
 
         /*
         Expand the box by the root of the minimum move amount in each axis if the player was not moving the last tick.
@@ -277,7 +278,7 @@ public class PlayerData {
          */
         if (!this.accuratePosition) {
             double minMove = Constants.MIN_MOVE_UPDATE_ROOT;
-            boundingBox.expand(minMove, minMove, minMove);
+            box.expand(minMove, minMove, minMove);
         }
 
         // Mouse input is done before any sneaking updates
@@ -285,6 +286,13 @@ public class PlayerData {
 
         // Previous position since movement is done after attacking in the client tick
         Vector3d eye = this.locO.getPos().add(0, eyeHeight, 0, new Vector3d());
+
+        // First check if the eye position is inside
+        PluginManager pluginManager = this.plugin.getServer().getPluginManager();
+        if (box.isInside(eye.x, eye.y, eye.z)) {
+            pluginManager.callEvent(new ReachEvent(this.player, 0.0D));
+            return;
+        }
 
         // Originally Minecraft uses the old yaw value for mouse intercepts, but some clients and mods fix this
         float yawO = this.locO.getRot().x;
@@ -298,8 +306,8 @@ public class PlayerData {
         Vector3d eyeView = eye.add(view, new Vector3d());
 
         // Calculate intercepts with Minecraft ray logic
-        Vector3d interceptO = MinecraftMath.calculateIntercept(boundingBox, eye, eyeViewO);
-        Vector3d intercept = MinecraftMath.calculateIntercept(boundingBox, eye, eyeView);
+        Vector3d interceptO = MinecraftMath.calculateIntercept(box, eye, eyeViewO);
+        Vector3d intercept = MinecraftMath.calculateIntercept(box, eye, eyeView);
 
         // Get minimum value of intercepts
         Optional<Double> range = Stream.of(interceptO, intercept)
@@ -308,6 +316,6 @@ public class PlayerData {
             .min(Double::compare);
 
         // Call reach event
-        this.plugin.getServer().getPluginManager().callEvent(new ReachEvent(this.player, range.orElse(null)));
+        pluginManager.callEvent(new ReachEvent(this.player, range.orElse(null)));
     }
 }
