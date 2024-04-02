@@ -18,7 +18,7 @@ import static org.mockito.Mockito.times;
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class PingTaskSchedulerUnitTest {
+public class PingTaskSchedulerTest {
     private PingTaskScheduler scheduler;
 
     @BeforeAll

@@ -15,6 +15,7 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEn
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPlayerPositionAndLook;
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
 import lombok.Getter;
+import lombok.Setter;
 import me.thomazz.reach.ReachPlugin;
 import me.thomazz.reach.event.ReachEvent;
 import me.thomazz.reach.ping.PingTask;
@@ -41,6 +42,7 @@ import java.util.stream.Stream;
  * Manages the state for a single player and contains packet data trackers.
  */
 @Getter
+@Setter
 public class PlayerData {
     private final ReachPlugin plugin;
     private final Player player;
@@ -49,8 +51,8 @@ public class PlayerData {
     private final EntityTracker entityTracker;
     private final PingTaskScheduler pingTaskScheduler;
 
-    public final Location locO = new Location();
-    public final Location loc = new Location();
+    private final Location locO = new Location();
+    private final Location loc = new Location();
 
     private final Queue<Location> teleports = new ArrayDeque<>();
 
@@ -215,7 +217,13 @@ public class PlayerData {
     private void tick() {
         // We need to wait to perform the reach check since we need to latest look values
         if (this.attacking) {
-            this.performReachCheck();
+            PluginManager pluginManager = this.plugin.getServer().getPluginManager();
+
+            // Get tracked entity and perform reach check
+            this.entityTracker.getEntry(this.lastAttacked)
+                .map(this::performReachCheck)
+                .ifPresent(result -> pluginManager.callEvent(new ReachEvent(this.player, result.orElse(null))));
+
             this.attacking = false;
         }
 
@@ -244,16 +252,8 @@ public class PlayerData {
     }
 
     // Tries to mirror client logic as closely as possible while including a few errors
-    private void performReachCheck() {
-        // Make sure we actually track this entity
-        Optional<EntityTrackerEntry> entryOpt = this.entityTracker.getEntry(this.lastAttacked);
-        if (!entryOpt.isPresent()) {
-            this.plugin.getLogger().warning("Tried to attack untracked player!");
-            return;
-        }
-
+    public Optional<Double> performReachCheck(EntityTrackerEntry entry) {
         // Get position area of entity we have been tracking
-        EntityTrackerEntry entry = entryOpt.get();
         Area position = entry.getPosition();
 
         // Expand position area into bounding box
@@ -291,10 +291,8 @@ public class PlayerData {
         Vector3d eye = this.locO.getPos().add(0, eyeHeight, 0, new Vector3d());
 
         // First check if the eye position is inside
-        PluginManager pluginManager = this.plugin.getServer().getPluginManager();
         if (box.isInside(eye.x, eye.y, eye.z)) {
-            pluginManager.callEvent(new ReachEvent(this.player, 0.0D));
-            return;
+            return Optional.of(0.0D);
         }
 
         // Originally Minecraft uses the old yaw value for mouse intercepts, but some clients and mods fix this
@@ -313,12 +311,9 @@ public class PlayerData {
         Vector3d intercept = MinecraftMath.calculateIntercept(box, eye, eyeView);
 
         // Get minimum value of intercepts
-        Optional<Double> range = Stream.of(interceptO, intercept)
+        return Stream.of(interceptO, intercept)
             .filter(Objects::nonNull)
             .map(eye::distance)
             .min(Double::compare);
-
-        // Call reach event
-        pluginManager.callEvent(new ReachEvent(this.player, range.orElse(null)));
     }
 }
