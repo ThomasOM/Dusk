@@ -20,12 +20,14 @@ import me.thomazz.reach.ReachPlugin;
 import me.thomazz.reach.event.ReachEvent;
 import me.thomazz.reach.ping.PingTask;
 import me.thomazz.reach.ping.PingTaskScheduler;
+import me.thomazz.reach.timing.Timing;
 import me.thomazz.reach.tracking.EntityTracker;
 import me.thomazz.reach.tracking.EntityTrackerEntry;
 import me.thomazz.reach.util.Area;
 import me.thomazz.reach.util.Constants;
 import me.thomazz.reach.util.Location;
 import me.thomazz.reach.util.MinecraftMath;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.joml.Vector2f;
@@ -50,11 +52,14 @@ public class PlayerData {
 
     private final EntityTracker entityTracker;
     private final PingTaskScheduler pingTaskScheduler;
+    private final Timing timing;
 
     private final Location locO = new Location();
     private final Location loc = new Location();
 
     private final Queue<Location> teleports = new ArrayDeque<>();
+
+    private boolean joined;
 
     private boolean wasSneaking;
     private boolean sneaking;
@@ -71,10 +76,35 @@ public class PlayerData {
         this.entityId = player.getEntityId();
         this.entityTracker = new EntityTracker();
         this.pingTaskScheduler = new PingTaskScheduler();
+        this.timing = new Timing(plugin, player, System.currentTimeMillis());
+    }
+
+    public void join() {
+        this.joined = true;
+    }
+
+    public void onPingSendStart() {
+        this.pingTaskScheduler.onPingSendStart();
+    }
+
+    public void onPingSendEnd() {
+        // First schedule the timing synchronization task
+        long time = System.currentTimeMillis();
+        this.pingTaskScheduler.scheduleEndTask(() -> this.timing.ping(time));
+
+        this.pingTaskScheduler.onPingSendEnd();
+    }
+
+    public void onPongReceiveStart() {
+        this.pingTaskScheduler.onPongReceiveStart();
+    }
+
+    public void onPongReceiveEnd() {
+        this.pingTaskScheduler.onPongReceiveEnd();
     }
 
     public void handlePacketReceive(PacketReceiveEvent event) {
-        // Only handle client play packets
+        // Only handle client play packets after joining game
         if (!(event.getPacketType() instanceof PacketType.Play.Client)) {
             return;
         }
@@ -229,6 +259,9 @@ public class PlayerData {
 
         // Interpolating tracked entities is after attacking in the client tick
         this.entityTracker.interpolate();
+
+        // Tick timing
+        this.timing.tick();
     }
 
     // Called after tick runs

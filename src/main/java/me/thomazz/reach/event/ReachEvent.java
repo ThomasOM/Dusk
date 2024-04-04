@@ -1,9 +1,7 @@
 package me.thomazz.reach.event;
 
 import lombok.Getter;
-import lombok.Setter;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.Nullable;
@@ -16,14 +14,14 @@ import java.util.Optional;
  * Range can be absent if no intercept was found tracing the ray.
  */
 @Getter
-public class ReachEvent extends Event implements Cancellable {
+public class ReachEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Player player;
     @Nullable private final Double range; // Null when no interception of ray
-    @Setter private boolean cancelled;
 
     public ReachEvent(Player player, @Nullable Double range) {
+        super(true);
         this.player = player;
         this.range = range;
     }

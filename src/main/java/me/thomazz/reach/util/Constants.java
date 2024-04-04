@@ -24,4 +24,8 @@ public class Constants {
     // Player boxes
     public final float PLAYER_BOX_WIDTH = 0.6F;
     public final float PLAYER_BOX_HEIGHT = 1.8F;
+
+    // Timing
+    public final int MAX_CATCHUP_TICKS = 10;
+    public final long TICK_MILLIS = 50L;
 }

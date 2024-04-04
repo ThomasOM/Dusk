@@ -1,10 +1,10 @@
 package me.thomazz.reach.ping;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Queue;
 
@@ -12,10 +12,10 @@ import java.util.Queue;
  * Utility that schedules tasks to be executed on a client response to server tick pings.
  */
 @Getter
-@RequiredArgsConstructor
 public class PingTaskScheduler {
     private final Queue<Queue<PingTask>> scheduledTasks = new ArrayDeque<>();
 
+    private boolean started;
     private boolean receivingPongs;
 
     @Nullable private Queue<PingTask> schedulingTaskQueue;
@@ -27,10 +27,15 @@ public class PingTaskScheduler {
      * @param task - Runnable to schedule
      */
     public void scheduleTask(PingTask task) {
-        // The client can actually respond with a pong before the server tick has completed, so instantly process new tasks
+        // Joining happens in the middle of the tick loop, so any tasks scheduled on start need to run already
+        if (!this.started) {
+            this.scheduledTasks.add(this.schedulingTaskQueue = new ArrayDeque<>());
+            task.onStart();
+        }
+
+        // The client can also respond to the start ping before the end ping is sent, meaning tasks should already start
         if (Objects.equals(this.runningTaskQueue, this.schedulingTaskQueue)) {
             task.onStart();
-            return;
         }
 
         Objects.requireNonNull(this.schedulingTaskQueue).add(task);
@@ -58,8 +63,8 @@ public class PingTaskScheduler {
 
     // Called on tick start server ping
     public void onPingSendStart() {
-        this.schedulingTaskQueue = new ArrayDeque<>();
-        this.scheduledTasks.add(this.schedulingTaskQueue);
+        this.scheduledTasks.add(this.schedulingTaskQueue = new ArrayDeque<>());
+        this.started = true;
     }
 
     // Called on tick end server ping
