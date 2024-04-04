@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class ReachCheckTest {
+public class ReachTest {
     @Mock private ReachPlugin pluginMock;
     @Mock private Player playerMock;
 

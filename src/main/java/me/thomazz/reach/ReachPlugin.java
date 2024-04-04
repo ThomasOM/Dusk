@@ -6,8 +6,6 @@ import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
 import dev.thomazz.pledge.Pledge;
-import dev.thomazz.pledge.event.TickEndEvent;
-import dev.thomazz.pledge.event.TickStartEvent;
 import dev.thomazz.pledge.pinger.ClientPinger;
 import dev.thomazz.pledge.pinger.ClientPingerListener;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -16,6 +14,7 @@ import me.thomazz.reach.listener.DebugListener;
 import me.thomazz.reach.ping.PingTaskScheduler;
 import me.thomazz.reach.player.PlayerData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -120,5 +119,13 @@ public class ReachPlugin extends JavaPlugin implements PacketListener, ClientPin
 
     public Optional<PlayerData> getPlayerData(Player player) {
         return Optional.ofNullable(this.playerDataMap.get(player));
+    }
+
+    public void callEvent(Event event) {
+        this.getServer().getPluginManager().callEvent(event);
+    }
+
+    public long getCurrentServerTime() {
+        return System.currentTimeMillis(); // Same as current system time
     }
 }

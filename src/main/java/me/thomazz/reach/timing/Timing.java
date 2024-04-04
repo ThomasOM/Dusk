@@ -1,12 +1,10 @@
 package me.thomazz.reach.timing;
 
-import dev.thomazz.pledge.event.TickStartEvent;
 import lombok.RequiredArgsConstructor;
 import me.thomazz.reach.ReachPlugin;
 import me.thomazz.reach.event.TimingEvent;
 import me.thomazz.reach.util.Constants;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 /**
@@ -28,7 +26,7 @@ public class Timing implements Listener {
         long lowerBound = Math.max(this.pingTimePassed - maxCatchupTime, 0L);
 
         // Upper bound is the current server time minus the time the player has logged in
-        long upperBound = System.currentTimeMillis() - this.loginTime;
+        long upperBound = this.plugin.getCurrentServerTime() - this.loginTime;
 
         // Every tick increments the client time passed, but the time can not go below the lower bound
         this.clientTimePassed = Math.max(this.clientTimePassed + Constants.TICK_MILLIS, lowerBound);
@@ -36,7 +34,7 @@ public class Timing implements Listener {
         // If the client runs faster than our server time
         if (this.clientTimePassed > upperBound) {
             long timeOver = this.clientTimePassed - upperBound; // Time over the upper bound
-            this.plugin.getServer().getPluginManager().callEvent(new TimingEvent(this.player, timeOver));
+            this.plugin.callEvent(new TimingEvent(this.player, timeOver));
         }
     }
 
