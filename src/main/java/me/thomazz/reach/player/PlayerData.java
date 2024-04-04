@@ -27,9 +27,7 @@ import me.thomazz.reach.util.Area;
 import me.thomazz.reach.util.Constants;
 import me.thomazz.reach.util.Location;
 import me.thomazz.reach.util.MinecraftMath;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginManager;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
 
@@ -247,12 +245,10 @@ public class PlayerData {
     private void tick() {
         // We need to wait to perform the reach check since we need to latest look values
         if (this.attacking) {
-            PluginManager pluginManager = this.plugin.getServer().getPluginManager();
-
             // Get tracked entity and perform reach check
             this.entityTracker.getEntry(this.lastAttacked)
                 .map(this::performReachCheck)
-                .ifPresent(result -> pluginManager.callEvent(new ReachEvent(this.player, result.orElse(null))));
+                .ifPresent(result -> this.plugin.callEvent(new ReachEvent(this.player, result.orElse(null))));
 
             this.attacking = false;
         }
