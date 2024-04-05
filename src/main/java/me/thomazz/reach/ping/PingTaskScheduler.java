@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Queue;
 
@@ -34,7 +33,7 @@ public class PingTaskScheduler {
         }
 
         // The client can also respond to the start ping before the end ping is sent, meaning tasks should already start
-        if (Objects.equals(this.runningTaskQueue, this.schedulingTaskQueue)) {
+        if (this.runningTaskQueue != null && this.runningTaskQueue.equals(this.schedulingTaskQueue)) {
             task.onStart();
         }
 
