@@ -11,7 +11,6 @@ import dev.thomazz.pledge.pinger.ClientPingerListener;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
 import me.thomazz.reach.listener.DebugListener;
-import me.thomazz.reach.ping.PingTaskScheduler;
 import me.thomazz.reach.player.PlayerData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -76,13 +75,6 @@ public class ReachPlugin extends JavaPlugin implements PacketListener, ClientPin
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         this.playerDataMap.remove(event.getPlayer());
-    }
-
-    @Override
-    public void onValidation(Player player, int id) {
-        this.getPlayerData(player)
-            .map(PlayerData::getPingTaskScheduler)
-            .ifPresent(PingTaskScheduler::onPingSendStart);
     }
 
     @Override
