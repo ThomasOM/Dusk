@@ -29,17 +29,18 @@ public class PingTaskSchedulerTest {
     @Test
     @Order(1)
     public void testTaskOrder() {
-        this.scheduler.onPingSendStart();
-
         Runnable runnable1 = mock(Runnable.class);
         Runnable runnable2 = mock(Runnable.class);
         Runnable runnable3 = mock(Runnable.class);
 
+        this.scheduler.onPingSendEnd();
+
+        this.scheduler.onPingSendStart();
         this.scheduler.scheduleStartTask(runnable1);
         this.scheduler.scheduleStartTask(runnable2);
         this.scheduler.scheduleStartTask(runnable3);
-
         this.scheduler.onPingSendEnd();
+
         this.scheduler.onPongReceiveStart();
         this.scheduler.onPongReceiveEnd();
 
@@ -52,12 +53,13 @@ public class PingTaskSchedulerTest {
     @Test
     @Order(2)
     public void testTaskOrderAlternate() {
-        this.scheduler.onPingSendStart();
-
         Runnable runnable1 = mock(Runnable.class);
         Runnable runnable2 = mock(Runnable.class);
         Runnable runnable3 = mock(Runnable.class);
 
+        this.scheduler.onPingSendEnd();
+
+        this.scheduler.onPingSendStart();
         this.scheduler.scheduleStartTask(runnable1);
         this.scheduler.scheduleStartTask(runnable2);
         this.scheduler.scheduleStartTask(runnable3);
@@ -79,6 +81,8 @@ public class PingTaskSchedulerTest {
         Runnable runnable1 = mock(Runnable.class);
         Runnable runnable2 = mock(Runnable.class);
         Runnable runnable3 = mock(Runnable.class);
+
+        this.scheduler.onPingSendEnd();
 
         this.scheduler.onPingSendStart();
         this.scheduler.scheduleStartTask(runnable1);

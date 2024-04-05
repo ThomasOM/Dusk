@@ -15,10 +15,10 @@ public class PingTaskScheduler {
     private final Queue<Queue<PingTask>> scheduledTasks = new ArrayDeque<>();
 
     private boolean started;
-    private boolean receivingPongs;
 
-    @Nullable private Queue<PingTask> schedulingTaskQueue;
-    @Nullable private Queue<PingTask> runningTaskQueue;
+    // Players always log in during the server tick so an end ping is sent first
+    @Nullable private Queue<PingTask> schedulingTaskQueue = new ArrayDeque<>();
+    @Nullable private Queue<PingTask> runningTaskQueue = this.schedulingTaskQueue;
 
     /**
      * Schedules a runnable to execute when the response for the pings of the current server tick is received from the client.
@@ -26,12 +26,6 @@ public class PingTaskScheduler {
      * @param task - Runnable to schedule
      */
     public void scheduleTask(PingTask task) {
-        // Joining happens in the middle of the tick loop, so any tasks scheduled on start need to run already
-        if (!this.started) {
-            this.scheduledTasks.add(this.schedulingTaskQueue = new ArrayDeque<>());
-            task.onStart();
-        }
-
         // The client can also respond to the start ping before the end ping is sent, meaning tasks should already start
         if (this.runningTaskQueue != null && this.runningTaskQueue.equals(this.schedulingTaskQueue)) {
             task.onStart();
@@ -60,6 +54,11 @@ public class PingTaskScheduler {
         });
     }
 
+    // If tasks can be scheduled, only when between the start and end pings are sent
+    public boolean canScheduleTasks() {
+        return !this.started || this.schedulingTaskQueue != null;
+    }
+
     // Called on tick start server ping
     public void onPingSendStart() {
         this.scheduledTasks.add(this.schedulingTaskQueue = new ArrayDeque<>());
@@ -73,7 +72,6 @@ public class PingTaskScheduler {
 
     // Called when tick start server ping response received from client
     public void onPongReceiveStart() {
-        this.receivingPongs = true;
         this.runningTaskQueue = this.scheduledTasks.poll();
 
         if (this.runningTaskQueue != null) {
@@ -83,8 +81,6 @@ public class PingTaskScheduler {
 
     // Called when tick end server ping response received from client
     public void onPongReceiveEnd() {
-        this.receivingPongs = false;
-
         if (this.runningTaskQueue != null) {
            while (!this.runningTaskQueue.isEmpty()) {
                this.runningTaskQueue.poll().onEnd();
