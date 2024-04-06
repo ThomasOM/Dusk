@@ -27,7 +27,6 @@ import me.thomazz.reach.util.Area;
 import me.thomazz.reach.util.Constants;
 import me.thomazz.reach.util.Location;
 import me.thomazz.reach.util.MinecraftMath;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
@@ -211,12 +210,10 @@ public class PlayerData {
 
 
                 // These packets can be received outside the tick start and end interval
-                if (this.pingTaskScheduler.canScheduleTasks()) {
-                    this.pingTaskScheduler.scheduleEndTask(() -> this.teleports.add(loc));
-                    Bukkit.broadcastMessage("tpx");
+                if (this.pingTaskScheduler.isStarted()) {
+                    this.pingTaskScheduler.scheduleStartTask(() -> this.teleports.add(loc));
                 } else {
                     this.teleports.add(loc);
-                    Bukkit.broadcastMessage("tp");
                 }
                 break;
         }
@@ -282,7 +279,6 @@ public class PlayerData {
             this.teleports.poll();
             this.loc.set(teleport);
             this.accuratePosition = true; // Position from last tick is no longer inaccurate
-            Bukkit.broadcastMessage("handle");
             return true;
         }
 
