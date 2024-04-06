@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
-import java.util.Objects;
 import java.util.Queue;
 
 /**
@@ -31,7 +30,11 @@ public class PingTaskScheduler {
             task.onStart();
         }
 
-        Objects.requireNonNull(this.schedulingTaskQueue).add(task);
+        if (this.schedulingTaskQueue == null) {
+            throw new IllegalStateException("No scheduling task queue present!");
+        }
+
+        this.schedulingTaskQueue.add(task);
     }
 
     // Extra utility method for scheduling a task to run on the first pong
@@ -54,11 +57,6 @@ public class PingTaskScheduler {
         });
     }
 
-    // If tasks can be scheduled, only when between the start and end pings are sent
-    public boolean canScheduleTasks() {
-        return !this.started || this.schedulingTaskQueue != null;
-    }
-
     // Called on tick start server ping
     public void onPingSendStart() {
         this.scheduledTasks.add(this.schedulingTaskQueue = new ArrayDeque<>());
@@ -73,18 +71,21 @@ public class PingTaskScheduler {
     // Called when tick start server ping response received from client
     public void onPongReceiveStart() {
         this.runningTaskQueue = this.scheduledTasks.poll();
-
-        if (this.runningTaskQueue != null) {
-            this.runningTaskQueue.forEach(PingTask::onStart);
+        if (this.runningTaskQueue == null) {
+            throw new IllegalStateException("No task queue for pong start!");
         }
+
+        this.runningTaskQueue.forEach(PingTask::onStart);
     }
 
     // Called when tick end server ping response received from client
     public void onPongReceiveEnd() {
-        if (this.runningTaskQueue != null) {
-           while (!this.runningTaskQueue.isEmpty()) {
-               this.runningTaskQueue.poll().onEnd();
-           }
+        if (this.runningTaskQueue == null) {
+            throw new IllegalStateException("No task queue for pong end!");
+        }
+
+        while (!this.runningTaskQueue.isEmpty()) {
+            this.runningTaskQueue.poll().onEnd();
         }
 
         this.runningTaskQueue = null;
