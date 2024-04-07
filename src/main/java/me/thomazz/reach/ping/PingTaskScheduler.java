@@ -1,5 +1,6 @@
 package me.thomazz.reach.ping;
 
+import lombok.CustomLog;
 import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +11,7 @@ import java.util.Queue;
  * Utility that schedules tasks to be executed on a client response to server tick pings.
  */
 @Getter
+@CustomLog
 public class PingTaskScheduler {
     private final Queue<Queue<PingTask>> scheduledTasks = new ArrayDeque<>();
 
@@ -37,30 +39,14 @@ public class PingTaskScheduler {
         this.schedulingTaskQueue.add(task);
     }
 
-    // Extra utility method for scheduling a task to run on the first pong
-    public void scheduleStartTask(Runnable runnable) {
-        this.scheduleTask(new PingTask() {
-            @Override
-            public void onStart() {
-                runnable.run();
-            }
-        });
-    }
-
-    // Extra utility method for scheduling a task to run on the second pong
-    public void scheduleEndTask(Runnable runnable) {
-        this.scheduleTask(new PingTask() {
-            @Override
-            public void onEnd() {
-                runnable.run();
-            }
-        });
-    }
-
     // Called on tick start server ping
     public void onPingSendStart() {
         this.scheduledTasks.add(this.schedulingTaskQueue = new ArrayDeque<>());
-        this.started = true;
+
+        if (!this.started) {
+            PingTaskScheduler.log.info("Started ping task scheduler");
+            this.started = true;
+        }
     }
 
     // Called on tick end server ping

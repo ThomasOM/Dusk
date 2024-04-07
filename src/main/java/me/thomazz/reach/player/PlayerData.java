@@ -88,7 +88,7 @@ public class PlayerData {
     public void onPingSendEnd() {
         // First schedule the timing synchronization task
         long time = System.currentTimeMillis();
-        this.pingTaskScheduler.scheduleEndTask(() -> this.timing.ping(time));
+        this.pingTaskScheduler.scheduleTask(PingTask.end(() -> this.timing.ping(time)));
 
         this.pingTaskScheduler.onPingSendEnd();
     }
@@ -163,8 +163,10 @@ public class PlayerData {
         switch (type) {
             case SPAWN_PLAYER:
                 WrapperPlayServerSpawnPlayer spawn = new WrapperPlayServerSpawnPlayer(event);
-                this.pingTaskScheduler.scheduleStartTask(() ->
-                    this.entityTracker.addEntity(spawn.getEntityId(), spawn.getPosition().x, spawn.getPosition().y, spawn.getPosition().z)
+                this.pingTaskScheduler.scheduleTask(
+                    PingTask.start(
+                        () -> this.entityTracker.addEntity(spawn.getEntityId(), spawn.getPosition().x, spawn.getPosition().y, spawn.getPosition().z)
+                    )
                 );
                 break;
             case ENTITY_RELATIVE_MOVE:
@@ -196,8 +198,8 @@ public class PlayerData {
                 break;
             case DESTROY_ENTITIES:
                 WrapperPlayServerDestroyEntities destroy = new WrapperPlayServerDestroyEntities(event);
-                this.pingTaskScheduler.scheduleStartTask(() ->
-                    Arrays.stream(destroy.getEntityIds()).forEach(this.entityTracker::removeEntity)
+                this.pingTaskScheduler.scheduleTask(
+                    PingTask.start(() -> Arrays.stream(destroy.getEntityIds()).forEach(this.entityTracker::removeEntity))
                 );
                 break;
             case PLAYER_POSITION_AND_LOOK:
@@ -211,7 +213,7 @@ public class PlayerData {
 
                 // These packets can be received outside the tick start and end interval
                 if (this.pingTaskScheduler.isStarted()) {
-                    this.pingTaskScheduler.scheduleStartTask(() -> this.teleports.add(loc));
+                    this.pingTaskScheduler.scheduleTask(PingTask.start(() -> this.teleports.add(loc)));
                 } else {
                     this.teleports.add(loc);
                 }

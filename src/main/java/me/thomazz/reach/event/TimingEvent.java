@@ -5,6 +5,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
+/**
+ * Event called when assumed player system time exceeds the server system time.
+ */
 @Getter
 public class TimingEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
