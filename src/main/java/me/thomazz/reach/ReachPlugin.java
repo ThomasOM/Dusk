@@ -12,6 +12,7 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import lombok.Getter;
 import me.thomazz.reach.listener.DebugListener;
 import me.thomazz.reach.player.PlayerData;
+import me.thomazz.reach.util.PluginLoggerFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -37,6 +38,9 @@ public class ReachPlugin extends JavaPlugin implements PacketListener, ClientPin
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         PacketEvents.getAPI().getSettings().reEncodeByDefault(false);
         PacketEvents.getAPI().load();
+
+        // Set up logger utility
+        PluginLoggerFactory.init(this);
     }
 
     @Override

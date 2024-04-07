@@ -1,4 +1,4 @@
-name: Plugin
+name: Reach
 version: ${project.version}
 author: Test
 main: me.thomazz.reach.ReachPlugin
