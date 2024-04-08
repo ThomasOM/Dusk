@@ -1,9 +1,9 @@
-package me.thomazz.reach.timing;
+package me.thomazz.dusk.timing;
 
 import lombok.RequiredArgsConstructor;
-import me.thomazz.reach.ReachPlugin;
-import me.thomazz.reach.event.TimingEvent;
-import me.thomazz.reach.util.Constants;
+import me.thomazz.dusk.DuskPlugin;
+import me.thomazz.dusk.event.TimingEvent;
+import me.thomazz.dusk.util.Constants;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
 
@@ -13,7 +13,7 @@ import org.bukkit.event.Listener;
  */
 @RequiredArgsConstructor
 public class Timing implements Listener {
-    private final ReachPlugin plugin;
+    private final DuskPlugin plugin;
     private final Player player;
     private final long loginTime;
 

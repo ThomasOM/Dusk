@@ -1,4 +1,4 @@
-package me.thomazz.reach;
+package me.thomazz.dusk;
 
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.event.PacketListener;
@@ -10,9 +10,9 @@ import dev.thomazz.pledge.pinger.ClientPinger;
 import dev.thomazz.pledge.pinger.ClientPingerListener;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
-import me.thomazz.reach.listener.DebugListener;
-import me.thomazz.reach.player.PlayerData;
-import me.thomazz.reach.util.PluginLoggerFactory;
+import me.thomazz.dusk.listener.DebugListener;
+import me.thomazz.dusk.player.PlayerData;
+import me.thomazz.dusk.util.PluginLoggerFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Getter
-public class ReachPlugin extends JavaPlugin implements PacketListener, ClientPingerListener, Listener {
+public class DuskPlugin extends JavaPlugin implements PacketListener, ClientPingerListener, Listener {
     private final Map<Player, PlayerData> playerDataMap = new LinkedHashMap<>();
     private Pledge pledge;
 

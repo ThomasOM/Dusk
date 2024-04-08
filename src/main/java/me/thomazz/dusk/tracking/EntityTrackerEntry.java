@@ -1,9 +1,9 @@
-package me.thomazz.reach.tracking;
+package me.thomazz.dusk.tracking;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.thomazz.reach.util.Area;
-import me.thomazz.reach.util.Constants;
+import me.thomazz.dusk.util.Area;
+import me.thomazz.dusk.util.Constants;
 
 /**
  * Tracking unit to determine the position of an entity on the client.

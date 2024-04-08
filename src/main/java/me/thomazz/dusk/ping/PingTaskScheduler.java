@@ -1,4 +1,4 @@
-package me.thomazz.reach.ping;
+package me.thomazz.dusk.ping;
 
 import lombok.CustomLog;
 import lombok.Getter;

@@ -1,8 +1,8 @@
-package me.thomazz.reach.listener;
+package me.thomazz.dusk.listener;
 
-import me.thomazz.reach.event.ReachEvent;
-import me.thomazz.reach.event.TimingEvent;
-import me.thomazz.reach.util.Constants;
+import me.thomazz.dusk.event.ReachEvent;
+import me.thomazz.dusk.event.TimingEvent;
+import me.thomazz.dusk.util.Constants;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;

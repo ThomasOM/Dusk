@@ -1,9 +1,13 @@
-# Reach
-Accurate reach check using transactions with [Pledge](https://github.com/ThomasOM/Pledge) to verify when packets are received on the client.
-Assuming optimal conditions, this reach check can detect anything above an attack range of `3.00075`
-The small error is due to the 'fast math' feature in Optifine and can be removed if support is not needed.
+# Dusk
+Server-side anticheat essentials for Minecraft 1.8
+Uses transactions to track client state with [Pledge](https://github.com/ThomasOM/Pledge)
+
+# Features
+- Highly accurate range check detecting the lowest reach possible, anything above `3.00075` (Small error due to fast math)
+- Optimal timing check detecting when users run their game faster than the server time
+- Lag independent, users with bad connection do cause any checks to false
 
 # Important Notes
-- This reach check only works on Minecraft 1.8 and does not support any versions above or below
-- The check has been tested for about ~20 minutes locally using clumsy and an autoclicker without any falses
+- This is only functional for Minecraft 1.8 and does not support any versions above or below
+- All checks have been tested locally by using [clumsy](https://github.com/jagt/clumsy) to simulate network lag
 - Not sure if I missed something... If I did, feel free to open an issue or a pull request!

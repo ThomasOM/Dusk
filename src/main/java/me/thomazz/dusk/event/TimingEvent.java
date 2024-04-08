@@ -1,4 +1,4 @@
-package me.thomazz.reach.event;
+package me.thomazz.dusk.event;
 
 import lombok.Getter;
 import org.bukkit.entity.Player;

@@ -1,4 +1,4 @@
-package me.thomazz.reach.util;
+package me.thomazz.dusk.util;
 
 import lombok.experimental.UtilityClass;
 import org.bukkit.plugin.Plugin;
@@ -15,7 +15,7 @@ public class PluginLoggerFactory {
     }
 
     @SuppressWarnings("unused")
-    public Logger getLogger(String name) {
+    public Logger getLogger() {
         if (PluginLoggerFactory.logger != null) {
             return PluginLoggerFactory.logger;
         }

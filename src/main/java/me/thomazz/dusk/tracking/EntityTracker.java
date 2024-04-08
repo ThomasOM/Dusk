@@ -1,4 +1,4 @@
-package me.thomazz.reach.tracking;
+package me.thomazz.dusk.tracking;
 
 import lombok.Setter;
 

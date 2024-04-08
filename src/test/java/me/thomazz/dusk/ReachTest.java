@@ -1,8 +1,8 @@
-package me.thomazz.reach;
+package me.thomazz.dusk;
 
-import me.thomazz.reach.player.PlayerData;
-import me.thomazz.reach.tracking.EntityTracker;
-import me.thomazz.reach.tracking.EntityTrackerEntry;
+import me.thomazz.dusk.player.PlayerData;
+import me.thomazz.dusk.tracking.EntityTracker;
+import me.thomazz.dusk.tracking.EntityTrackerEntry;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReachTest {
-    @Mock private ReachPlugin pluginMock;
+    @Mock private DuskPlugin pluginMock;
     @Mock private Player playerMock;
 
     @BeforeEach

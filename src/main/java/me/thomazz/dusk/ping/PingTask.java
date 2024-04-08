@@ -1,4 +1,4 @@
-package me.thomazz.reach.ping;
+package me.thomazz.dusk.ping;
 
 /**
  * Task interface for {@link PingTaskScheduler}

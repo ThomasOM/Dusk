@@ -1,4 +1,4 @@
-package me.thomazz.reach.player;
+package me.thomazz.dusk.player;
 
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
 import com.github.retrooper.packetevents.event.PacketSendEvent;
@@ -16,17 +16,17 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPl
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
 import lombok.Getter;
 import lombok.Setter;
-import me.thomazz.reach.ReachPlugin;
-import me.thomazz.reach.event.ReachEvent;
-import me.thomazz.reach.ping.PingTask;
-import me.thomazz.reach.ping.PingTaskScheduler;
-import me.thomazz.reach.timing.Timing;
-import me.thomazz.reach.tracking.EntityTracker;
-import me.thomazz.reach.tracking.EntityTrackerEntry;
-import me.thomazz.reach.util.Area;
-import me.thomazz.reach.util.Constants;
-import me.thomazz.reach.util.Location;
-import me.thomazz.reach.util.MinecraftMath;
+import me.thomazz.dusk.DuskPlugin;
+import me.thomazz.dusk.event.ReachEvent;
+import me.thomazz.dusk.ping.PingTask;
+import me.thomazz.dusk.ping.PingTaskScheduler;
+import me.thomazz.dusk.timing.Timing;
+import me.thomazz.dusk.tracking.EntityTracker;
+import me.thomazz.dusk.tracking.EntityTrackerEntry;
+import me.thomazz.dusk.util.Area;
+import me.thomazz.dusk.util.Constants;
+import me.thomazz.dusk.util.Location;
+import me.thomazz.dusk.util.MinecraftMath;
 import org.bukkit.entity.Player;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
@@ -44,7 +44,7 @@ import java.util.stream.Stream;
 @Getter
 @Setter
 public class PlayerData {
-    private final ReachPlugin plugin;
+    private final DuskPlugin plugin;
     private final Player player;
     private final int entityId;
 
@@ -68,7 +68,7 @@ public class PlayerData {
     private boolean attacking;
     private int lastAttacked;
 
-    public PlayerData(ReachPlugin plugin, Player player) {
+    public PlayerData(DuskPlugin plugin, Player player) {
         this.plugin = plugin;
         this.player = player;
         this.entityId = player.getEntityId();

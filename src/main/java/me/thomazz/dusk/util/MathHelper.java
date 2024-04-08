@@ -1,4 +1,4 @@
-package me.thomazz.reach.util;
+package me.thomazz.dusk.util;
 
 import lombok.experimental.UtilityClass;
 

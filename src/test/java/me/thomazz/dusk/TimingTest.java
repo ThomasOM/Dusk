@@ -1,6 +1,6 @@
-package me.thomazz.reach;
+package me.thomazz.dusk;
 
-import me.thomazz.reach.timing.Timing;
+import me.thomazz.dusk.timing.Timing;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TimingTest {
-    @Mock private ReachPlugin pluginMock;
+    @Mock private DuskPlugin pluginMock;
     @Mock private Player playerMock;
 
     @Test

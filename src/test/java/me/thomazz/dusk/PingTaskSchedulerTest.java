@@ -1,7 +1,7 @@
-package me.thomazz.reach;
+package me.thomazz.dusk;
 
-import me.thomazz.reach.ping.PingTask;
-import me.thomazz.reach.ping.PingTaskScheduler;
+import me.thomazz.dusk.ping.PingTask;
+import me.thomazz.dusk.ping.PingTaskScheduler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
