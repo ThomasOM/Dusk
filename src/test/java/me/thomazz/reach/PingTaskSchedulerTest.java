@@ -2,7 +2,6 @@ package me.thomazz.reach;
 
 import me.thomazz.reach.ping.PingTask;
 import me.thomazz.reach.ping.PingTaskScheduler;
-import org.bukkit.plugin.Plugin;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InOrder;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import static org.mockito.Mockito.mock;
@@ -22,7 +20,6 @@ import static org.mockito.Mockito.times;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class PingTaskSchedulerTest {
-    @Mock private Plugin pluginMock;
     private PingTaskScheduler scheduler;
 
     @BeforeEach

@@ -20,6 +20,10 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
+            <id>pledge-repo</id>
+            <url>https://raw.github.com/ThomasOM/Pledge/repository/</url>
+        </repository>
+        <repository>
             <id>codemc-releases</id>
             <url>https://repo.codemc.io/repository/maven-releases/</url>
         </repository>
