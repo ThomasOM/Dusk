@@ -5,7 +5,7 @@ Uses transactions to track client state with [Pledge](https://github.com/ThomasO
 # Features
 - Highly accurate range check detecting the lowest reach possible, anything above `3.00075` (Small error due to fast math)
 - Optimal timing check detecting when users run their game faster than the server time
-- Lag independent, users with bad connection do cause any checks to false
+- Lag independent, users with bad connection do not cause any checks to false
 
 # Important Notes
 - This is only functional for Minecraft 1.8 and does not support any versions above or below

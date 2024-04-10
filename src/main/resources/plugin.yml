@@ -1,6 +1,4 @@
-name: Reach
+name: Dusk
 version: ${project.version}
-author: Test
-main: me.thomazz.reach.DuskPlugin
-depend:
-  - packetevents
+author: Thomazz
+main: me.thomazz.dusk.DuskPlugin
