@@ -16,27 +16,22 @@ import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerPl
 import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSpawnPlayer;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 import me.thomazz.dusk.DuskPlugin;
-import me.thomazz.dusk.event.ReachEvent;
+import me.thomazz.dusk.check.Check;
+import me.thomazz.dusk.check.CheckRegistry;
 import me.thomazz.dusk.ping.PingTask;
 import me.thomazz.dusk.ping.PingTaskScheduler;
-import me.thomazz.dusk.timing.Timing;
 import me.thomazz.dusk.tracking.EntityTracker;
-import me.thomazz.dusk.tracking.EntityTrackerEntry;
-import me.thomazz.dusk.util.Area;
-import me.thomazz.dusk.util.Constants;
 import me.thomazz.dusk.util.Location;
-import me.thomazz.dusk.util.MinecraftMath;
 import org.bukkit.entity.Player;
 import org.joml.Vector2f;
 import org.joml.Vector3d;
 
 import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.List;
 import java.util.Queue;
-import java.util.stream.Stream;
 
 /**
  * Manages the state for a single player and contains packet data trackers.
@@ -47,10 +42,12 @@ public class PlayerData {
     private final DuskPlugin plugin;
     private final Player player;
     private final int entityId;
+    private final long loginTime;
+
+    private final List<Check> checks;
 
     private final EntityTracker entityTracker;
     private final PingTaskScheduler pingTaskScheduler;
-    private final Timing timing;
 
     private final Location locO = new Location();
     private final Location loc = new Location();
@@ -59,6 +56,7 @@ public class PlayerData {
 
     private boolean joined;
 
+    @Accessors(fluent = true)
     private boolean wasSneaking;
     private boolean sneaking;
 
@@ -72,9 +70,12 @@ public class PlayerData {
         this.plugin = plugin;
         this.player = player;
         this.entityId = player.getEntityId();
+        this.loginTime = System.currentTimeMillis();
+
+        this.checks = CheckRegistry.constructChecks(this);
+
         this.entityTracker = new EntityTracker();
         this.pingTaskScheduler = new PingTaskScheduler();
-        this.timing = new Timing(plugin, player, System.currentTimeMillis());
     }
 
     public void join() {
@@ -82,22 +83,22 @@ public class PlayerData {
     }
 
     public void onPingSendStart() {
+        this.checks.forEach(Check::onPingSendStart);
         this.pingTaskScheduler.onPingSendStart();
     }
 
     public void onPingSendEnd() {
-        // First schedule the timing synchronization task
-        long time = System.currentTimeMillis();
-        this.pingTaskScheduler.scheduleTask(PingTask.end(() -> this.timing.ping(time)));
-
+        this.checks.forEach(Check::onPingSendEnd);
         this.pingTaskScheduler.onPingSendEnd();
     }
 
     public void onPongReceiveStart() {
+        this.checks.forEach(Check::onPongReceiveStart);
         this.pingTaskScheduler.onPongReceiveStart();
     }
 
     public void onPongReceiveEnd() {
+        this.checks.forEach(Check::onPongReceiveEnd);
         this.pingTaskScheduler.onPongReceiveEnd();
     }
 
@@ -106,6 +107,8 @@ public class PlayerData {
         if (!(event.getPacketType() instanceof PacketType.Play.Client)) {
             return;
         }
+
+        this.checks.forEach(check -> check.onPacketReceive(event));
 
         PacketType.Play.Client type = (PacketType.Play.Client) event.getPacketType();
         switch (type) {
@@ -158,6 +161,8 @@ public class PlayerData {
         if (!(event.getPacketType() instanceof PacketType.Play.Server)) {
             return;
         }
+
+        this.checks.forEach(check -> check.onPacketSend(event));
 
         PacketType.Play.Server type = (PacketType.Play.Server) event.getPacketType();
         switch (type) {
@@ -250,21 +255,16 @@ public class PlayerData {
 
     // Called after the tick has been completed on the client
     private void tick() {
+        // Run client tick for checks
+        this.checks.forEach(Check::onClientTick);
+
         // We need to wait to perform the reach check since we need to latest look values
         if (this.attacking) {
-            // Get tracked entity and perform reach check
-            this.entityTracker.getEntry(this.lastAttacked)
-                .map(this::performReachCheck)
-                .ifPresent(result -> this.plugin.callEvent(new ReachEvent(this.player, result.orElse(null))));
-
             this.attacking = false;
         }
 
         // Interpolating tracked entities is after attacking in the client tick
         this.entityTracker.interpolate();
-
-        // Tick timing
-        this.timing.tick();
     }
 
     // Called after tick runs
@@ -285,71 +285,5 @@ public class PlayerData {
         }
 
         return false;
-    }
-
-    // Tries to mirror client logic as closely as possible while including a few errors
-    public Optional<Double> performReachCheck(EntityTrackerEntry entry) {
-        // Get position area of entity we have been tracking
-        Area position = entry.getPosition();
-
-        // Expand position area into bounding box
-        float width = Constants.PLAYER_BOX_WIDTH;
-        float height =  Constants.PLAYER_BOX_HEIGHT;
-
-        Area box = new Area(position)
-            .expand(width / 2.0, 0.0, width / 2.0)
-            .addCoord(0.0, height, 0.0);
-
-        // The hitbox is actually 0.1 blocks bigger than the bounding box
-        float offset = Constants.COLLISION_BORDER_SIZE;
-        box.expand(offset, offset, offset);
-
-        // Compensate for fast math errors in the look vector calculations (Can remove if support not needed)
-        double error = Constants.FAST_MATH_ERROR;
-        box.expand(error, error, error);
-
-        /*
-        Expand the box by the root of the minimum move amount in each axis if the player was not moving the last tick.
-        This is because they could have moved this amount on the client making a difference between a hit or miss.
-         */
-        if (!this.accuratePosition) {
-            double minMove = Constants.MIN_MOVE_UPDATE_ROOT;
-            box.expand(minMove, minMove, minMove);
-        }
-
-        // Mouse input is done before any sneaking updates
-        float eyeHeight = 1.62F;
-        if (this.wasSneaking) {
-            eyeHeight -= 0.08F;
-        }
-
-        // Previous position since movement is done after attacking in the client tick
-        Vector3d eye = this.locO.getPos().add(0, eyeHeight, 0, new Vector3d());
-
-        // First check if the eye position is inside
-        if (box.isInside(eye.x, eye.y, eye.z)) {
-            return Optional.of(0.0D);
-        }
-
-        // Originally Minecraft uses the old yaw value for mouse intercepts, but some clients and mods fix this
-        float yawO = this.locO.getRot().x;
-        float yaw = this.loc.getRot().x;
-        float pitch = this.loc.getRot().y;
-
-        Vector3d viewO = MinecraftMath.getLookVector(yawO, pitch).mul(Constants.RAY_LENGTH);
-        Vector3d view = MinecraftMath.getLookVector(yaw, pitch).mul(Constants.RAY_LENGTH);
-
-        Vector3d eyeViewO = eye.add(viewO, new Vector3d());
-        Vector3d eyeView = eye.add(view, new Vector3d());
-
-        // Calculate intercepts with Minecraft ray logic
-        Vector3d interceptO = MinecraftMath.calculateIntercept(box, eye, eyeViewO);
-        Vector3d intercept = MinecraftMath.calculateIntercept(box, eye, eyeView);
-
-        // Get minimum value of intercepts
-        return Stream.of(interceptO, intercept)
-            .filter(Objects::nonNull)
-            .map(eye::distance)
-            .min(Double::compare);
     }
 }

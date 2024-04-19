@@ -1,29 +1,29 @@
 package me.thomazz.dusk.listener;
 
-import me.thomazz.dusk.event.ReachEvent;
-import me.thomazz.dusk.event.TimingEvent;
-import me.thomazz.dusk.util.Constants;
+import me.thomazz.dusk.check.event.CheckFlagEvent;
+import me.thomazz.dusk.check.event.flag.ReachFlagData;
+import me.thomazz.dusk.check.event.flag.TimingFlagData;
+import me.thomazz.dusk.check.impl.ReachCheck;
+import me.thomazz.dusk.check.impl.TimingCheck;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 import java.text.DecimalFormat;
-import java.util.Optional;
 
 public class DebugListener implements Listener {
     @EventHandler
-    public void onReach(ReachEvent event) {
-        Optional<Double> range = event.getRange();
-        String reachString = range.map(new DecimalFormat("0.000")::format).orElse("No intercept");
-        boolean reaching = !range.isPresent() || range.get() > Constants.MAX_RANGE;
+    public void onCheckFlag(CheckFlagEvent event) {
+        if (event.getType() == ReachCheck.class) {
+            ReachFlagData data = event.getData();
+            String reachString = new DecimalFormat("0.000").format( data.getRange());
+            Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getName() + " attack reach: " + reachString);
+        }
 
-        ChatColor color = reaching ? ChatColor.RED : ChatColor.YELLOW;
-        Bukkit.broadcastMessage(color + event.getPlayer().getName() + " attack reach: " + reachString);
-    }
-
-    @EventHandler
-    public void onTiming(TimingEvent event) {
-        Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getName() + " timing over: " + event.getTimeOver());
+        if (event.getType() == TimingCheck.class) {
+            TimingFlagData data = event.getData();
+            Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getName() + " timing over: " + data.getTimeOver());
+        }
     }
 }

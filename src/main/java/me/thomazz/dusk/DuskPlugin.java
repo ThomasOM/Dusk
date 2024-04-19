@@ -10,6 +10,7 @@ import dev.thomazz.pledge.pinger.ClientPinger;
 import dev.thomazz.pledge.pinger.ClientPingerListener;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.Getter;
+import me.thomazz.dusk.check.CheckRegistry;
 import me.thomazz.dusk.listener.DebugListener;
 import me.thomazz.dusk.player.PlayerData;
 import me.thomazz.dusk.util.PluginLoggerFactory;
@@ -29,6 +30,8 @@ import java.util.Optional;
 
 @Getter
 public class DuskPlugin extends JavaPlugin implements PacketListener, ClientPingerListener, Listener {
+    public static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("duskDebug"));
+
     private final Map<Player, PlayerData> playerDataMap = new LinkedHashMap<>();
     private Pledge pledge;
 
@@ -45,6 +48,8 @@ public class DuskPlugin extends JavaPlugin implements PacketListener, ClientPing
 
     @Override
     public void onEnable() {
+        CheckRegistry.init();
+
         // Set up pledge
         this.pledge = Pledge.getOrCreate(this);
         ClientPinger pinger = this.pledge.createPinger(-1, -400); // Range doesn't matter here

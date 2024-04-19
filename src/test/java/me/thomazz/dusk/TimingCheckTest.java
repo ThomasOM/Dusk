@@ -1,7 +1,10 @@
 package me.thomazz.dusk;
 
-import me.thomazz.dusk.timing.Timing;
-import org.bukkit.entity.Player;
+import me.thomazz.dusk.check.CheckRegistry;
+import me.thomazz.dusk.check.impl.TimingCheck;
+import me.thomazz.dusk.player.PlayerData;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -23,22 +26,33 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-public class TimingTest {
+public class TimingCheckTest {
     @Mock private DuskPlugin pluginMock;
-    @Mock private Player playerMock;
+    @Mock private PlayerData playerDataMock;
+    private TimingCheck timing;
+
+    @BeforeAll
+    public void setupAll() {
+        CheckRegistry.init();
+    }
+
+    @BeforeEach
+    public void setup() {
+        when(this.playerDataMock.getPlugin()).thenReturn(this.pluginMock);
+        when(this.playerDataMock.getLoginTime()).thenReturn(0L);
+        this.timing = new TimingCheck(this.playerDataMock);
+    }
 
     @Test
     @Order(1)
     public void testTimingPass() {
-        Timing timing = new Timing(this.pluginMock, this.playerMock, 0L);
-
         when(this.pluginMock.getCurrentServerTime()).thenReturn(50L);
-        timing.ping(50L);
-        timing.tick();
+        this.timing.ping(50L);
+        this.timing.onClientTick();
 
         when(this.pluginMock.getCurrentServerTime()).thenReturn(100L);
-        timing.ping(100L);
-        timing.tick();
+        this.timing.ping(100L);
+        this.timing.onClientTick();
 
         verify(this.pluginMock, never()).callEvent(any());
     }
@@ -46,16 +60,14 @@ public class TimingTest {
     @Test
     @Order(2)
     public void testTimingFail() {
-        Timing timing = new Timing(this.pluginMock, this.playerMock, 0L);
-
         when(this.pluginMock.getCurrentServerTime()).thenReturn(50L);
-        timing.ping(50L);
-        timing.tick();
+        this.timing.ping(50L);
+        this.timing.onClientTick();
 
         when(this.pluginMock.getCurrentServerTime()).thenReturn(100L);
-        timing.ping(100L);
-        timing.tick();
-        timing.tick();
+        this.timing.ping(100L);
+        this.timing.onClientTick();
+        this.timing.onClientTick();
 
         verify(this.pluginMock, times(1)).callEvent(any());
     }
