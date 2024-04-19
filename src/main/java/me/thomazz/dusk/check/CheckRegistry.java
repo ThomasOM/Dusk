@@ -10,6 +10,7 @@ import me.thomazz.dusk.player.PlayerData;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -35,7 +36,9 @@ public class CheckRegistry {
     }
 
     public CheckInfo getInfo(Class<? extends Check> check) {
-        return CheckRegistry.registryMapping.get(check).info;
+        return Optional.ofNullable(CheckRegistry.registryMapping.get(check))
+            .map(entry -> entry.info)
+            .orElse(null);
     }
 
     @Getter

@@ -33,7 +33,7 @@ public abstract class Check {
     public void onPongReceiveEnd() {
     }
 
-    protected <T> void flag(T data) {
+    public <T> void flag(T data) {
         Class<? extends Check> type = this.getClass();
         CheckInfo info = CheckRegistry.getInfo(type);
         CheckFlagEvent event = new CheckFlagEvent(this.data.getPlayer(), type, info, data);

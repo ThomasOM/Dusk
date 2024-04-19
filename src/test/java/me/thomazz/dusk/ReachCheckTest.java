@@ -15,7 +15,9 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,27 +28,22 @@ import java.math.RoundingMode;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.spy;
 
 @RunWith(MockitoJUnitRunner.class)
 @ExtendWith(MockitoExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(TestInstance.Lifecycle.PER_METHOD)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ReachCheckTest {
     @Mock private PlayerData playerDataMock;
-    private ReachCheck reachCheck;
 
-    @BeforeAll
-    public void setupAll() {
-        CheckRegistry.init();
-    }
-
-    @BeforeEach
-    public void setup() {
-        this.reachCheck = new ReachCheck(this.playerDataMock);
-    }
+    @Spy
+    @InjectMocks
+    private ReachCheck reachCheckSpy;
 
     @Test
     @Order(1)
@@ -62,10 +59,9 @@ public class ReachCheckTest {
         when(this.playerDataMock.getLoc()).thenReturn(new Location());
         when(this.playerDataMock.getLocO()).thenReturn(new Location());
 
-        ReachCheck spy = spy(this.reachCheck);
         ResultCaptor<Optional<Double>> captor = new ResultCaptor<>();
-        doAnswer(captor).when(spy).performReachCheck(entry);
-        spy.onClientTick();
+        doAnswer(captor).when(this.reachCheckSpy).performReachCheck(entry);
+        this.reachCheckSpy.onClientTick();
 
         Optional<Double> result = captor.result;
         Double value = result.orElseThrow(IllegalStateException::new);
@@ -73,13 +69,14 @@ public class ReachCheckTest {
         dc = dc.setScale(3, RoundingMode.UP); // Round last 3 digits upwards
 
         assertEquals(3.0D, dc.doubleValue());
+        verify(this.reachCheckSpy, never()).flag(any());
     }
 
-    private static class ResultCaptor<T> implements Answer {
+    @SuppressWarnings({"NewClassNamingConvention", "unchecked"})
+    private static class ResultCaptor<T> implements Answer<T> {
         private T result;
 
         @Override
-        @SuppressWarnings("unchecked")
         public T answer(InvocationOnMock invocationOnMock) throws Throwable {
             this.result = (T) invocationOnMock.callRealMethod();
             return this.result;
