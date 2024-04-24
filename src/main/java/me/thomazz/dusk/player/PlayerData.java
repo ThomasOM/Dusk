@@ -258,11 +258,6 @@ public class PlayerData {
         // Run client tick for checks
         this.checks.forEach(Check::onClientTick);
 
-        // We need to wait to perform the reach check since we need to latest look values
-        if (this.attacking) {
-            this.attacking = false;
-        }
-
         // Interpolating tracked entities is after attacking in the client tick
         this.entityTracker.interpolate();
     }
@@ -271,6 +266,7 @@ public class PlayerData {
     private void postTick() {
         this.wasSneaking = this.sneaking;
         this.accuratePosition = this.moving;
+        this.attacking = false;
     }
 
     // Only for client responses to teleports

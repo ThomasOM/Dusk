@@ -9,8 +9,11 @@ import me.thomazz.dusk.tracking.EntityTrackerEntry;
 import me.thomazz.dusk.util.Area;
 import me.thomazz.dusk.util.Constants;
 import me.thomazz.dusk.util.MinecraftMath;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.joml.Vector3d;
 
+import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -23,6 +26,7 @@ public class ReachCheck extends Check {
 
     @Override
     public void onClientTick() {
+        // Only check when actually attacking
         if (!this.data.isAttacking()) {
             return;
         }
@@ -31,16 +35,9 @@ public class ReachCheck extends Check {
         this.data.getEntityTracker().getEntry(this.data.getLastAttacked())
             .map(this::performReachCheck)
             .map(result -> result.orElse(Double.POSITIVE_INFINITY))
-            .ifPresent(range -> {
-                // Debug values
-                if (DuskPlugin.DEBUG) {
-                    this.data.getPlugin().getLogger().info(this.data.getPlayer().getName() + " attack range: " + range);
-                }
-
-                if (range > Constants.MAX_RANGE) {
-                    this.flag(new ReachFlagData(range));
-                }
-            });
+            .filter(range -> range > Constants.MAX_RANGE)
+            .map(ReachFlagData::new)
+            .ifPresent(this::flag);
     }
 
     // Tries to mirror client logic as closely as possible while including a few errors
@@ -103,9 +100,17 @@ public class ReachCheck extends Check {
         Vector3d intercept = MinecraftMath.calculateIntercept(box, eye, eyeView);
 
         // Get minimum value of intercepts
-        return Stream.of(interceptO, intercept)
+        Optional<Double> result = Stream.of(interceptO, intercept)
             .filter(Objects::nonNull)
             .map(eye::distance)
             .min(Double::compare);
+
+        // Debug broadcast
+        if (DuskPlugin.DEBUG) {
+            String debug = new DecimalFormat("0.000").format(result.orElse(Double.NaN));
+            Bukkit.broadcastMessage(ChatColor.GRAY + this.data.getPlayer().getName() + " attack range: " + debug);
+        }
+
+        return result;
     }
 }

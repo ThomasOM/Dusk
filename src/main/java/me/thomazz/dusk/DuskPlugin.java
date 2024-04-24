@@ -30,7 +30,7 @@ import java.util.Optional;
 
 @Getter
 public class DuskPlugin extends JavaPlugin implements PacketListener, ClientPingerListener, Listener {
-    public static final boolean DEBUG = Boolean.parseBoolean(System.getProperty("duskDebug"));
+    public static final boolean DEBUG = Boolean.parseBoolean(System.getenv("duskDebug"));
 
     private final Map<Player, PlayerData> playerDataMap = new LinkedHashMap<>();
     private Pledge pledge;
