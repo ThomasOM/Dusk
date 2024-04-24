@@ -107,7 +107,7 @@ public class ReachCheck extends Check {
 
         // Debug broadcast
         if (DuskPlugin.DEBUG) {
-            String debug = new DecimalFormat("0.000").format(result.orElse(Double.NaN));
+            String debug = new DecimalFormat("0.000").format(result.orElse(Double.POSITIVE_INFINITY));
             Bukkit.broadcastMessage(ChatColor.GRAY + this.data.getPlayer().getName() + " attack range: " + debug);
         }
 

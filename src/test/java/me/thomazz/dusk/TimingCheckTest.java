@@ -1,5 +1,6 @@
 package me.thomazz.dusk;
 
+import me.thomazz.dusk.check.CheckType;
 import me.thomazz.dusk.check.impl.TimingCheck;
 import me.thomazz.dusk.player.PlayerData;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 

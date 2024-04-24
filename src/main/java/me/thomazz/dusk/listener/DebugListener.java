@@ -15,15 +15,16 @@ import java.text.DecimalFormat;
 public class DebugListener implements Listener {
     @EventHandler
     public void onCheckFlag(CheckFlagEvent event) {
-        if (event.getType() == ReachCheck.class) {
-            ReachFlagData data = event.getData();
-            String reachString = new DecimalFormat("0.000").format( data.getRange());
-            Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getName() + " attack reach: " + reachString);
-        }
-
-        if (event.getType() == TimingCheck.class) {
-            TimingFlagData data = event.getData();
-            Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getName() + " timing over: " + data.getTimeOver());
+        switch (event.getType()) {
+            case REACH:
+                ReachFlagData reachData = event.getData();
+                String reachString = new DecimalFormat("0.000").format( reachData.getRange());
+                Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getName() + " attack reach: " + reachString);
+                break;
+            case TIMING:
+                TimingFlagData timingData = event.getData();
+                Bukkit.broadcastMessage(ChatColor.RED + event.getPlayer().getName() + " timing over: " + timingData.getTimeOver());
+                break;
         }
     }
 }

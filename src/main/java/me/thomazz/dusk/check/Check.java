@@ -5,7 +5,6 @@ import com.github.retrooper.packetevents.event.PacketSendEvent;
 import lombok.RequiredArgsConstructor;
 import me.thomazz.dusk.check.event.CheckFlagEvent;
 import me.thomazz.dusk.player.PlayerData;
-import org.bukkit.Bukkit;
 
 @CheckInfo
 @RequiredArgsConstructor
@@ -34,9 +33,8 @@ public abstract class Check {
     }
 
     public <T> void flag(T data) {
-        Class<? extends Check> type = this.getClass();
-        CheckInfo info = CheckRegistry.getInfo(type);
-        CheckFlagEvent event = new CheckFlagEvent(this.data.getPlayer(), type, info, data);
+        CheckType type = CheckType.fromClass(this.getClass());
+        CheckFlagEvent event = new CheckFlagEvent(this.data.getPlayer(), type, data);
         this.data.getPlugin().callEvent(event);
     }
 }

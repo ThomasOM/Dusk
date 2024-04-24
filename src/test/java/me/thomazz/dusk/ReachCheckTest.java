@@ -1,6 +1,5 @@
 package me.thomazz.dusk;
 
-import me.thomazz.dusk.check.CheckRegistry;
 import me.thomazz.dusk.check.impl.ReachCheck;
 import me.thomazz.dusk.player.PlayerData;
 import me.thomazz.dusk.tracking.EntityTracker;

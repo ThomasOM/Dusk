@@ -19,7 +19,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import me.thomazz.dusk.DuskPlugin;
 import me.thomazz.dusk.check.Check;
-import me.thomazz.dusk.check.CheckRegistry;
+import me.thomazz.dusk.check.CheckType;
 import me.thomazz.dusk.ping.PingTask;
 import me.thomazz.dusk.ping.PingTaskScheduler;
 import me.thomazz.dusk.tracking.EntityTracker;
@@ -29,6 +29,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3d;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
@@ -44,10 +45,10 @@ public class PlayerData {
     private final int entityId;
     private final long loginTime;
 
-    private final List<Check> checks;
-
     private final EntityTracker entityTracker;
     private final PingTaskScheduler pingTaskScheduler;
+
+    private final List<Check> checks = new ArrayList<>();
 
     private final Location locO = new Location();
     private final Location loc = new Location();
@@ -72,10 +73,10 @@ public class PlayerData {
         this.entityId = player.getEntityId();
         this.loginTime = System.currentTimeMillis();
 
-        this.checks = CheckRegistry.constructChecks(this);
-
         this.entityTracker = new EntityTracker();
         this.pingTaskScheduler = new PingTaskScheduler();
+
+        CheckType.createChecks(this).forEach(this.checks::add);
     }
 
     public void join() {

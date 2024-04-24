@@ -1,8 +1,7 @@
 package me.thomazz.dusk.check.event;
 
 import lombok.Getter;
-import me.thomazz.dusk.check.Check;
-import me.thomazz.dusk.check.CheckInfo;
+import me.thomazz.dusk.check.CheckType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
@@ -12,15 +11,13 @@ public class CheckFlagEvent extends Event {
     private static final HandlerList HANDLER_LIST = new HandlerList();
 
     private final Player player;
-    private final Class<? extends Check> type;
-    private final CheckInfo info;
+    private final CheckType type;
     private final Object data;
 
-    public CheckFlagEvent(Player player, Class<? extends Check> type, CheckInfo info, Object data) {
+    public CheckFlagEvent(Player player, CheckType type, Object data) {
         super(true);
         this.player = player;
         this.type = type;
-        this.info = info;
         this.data = data;
     }
 
