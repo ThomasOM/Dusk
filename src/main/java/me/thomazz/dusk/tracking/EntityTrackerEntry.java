@@ -38,7 +38,7 @@ public class EntityTrackerEntry {
         double errorV = Constants.MIN_TELEPORT_VERTICAL;
 
         this.rootBase.set(x, y, z);
-        this.base.addCoord(x, y, z);
+        this.base.contain(x, y, z);
 
         // If the distance is too close to the client position it is possible for the base to remain unchanged
         if (this.position.distanceX(x) < errorH && this.position.distanceY(y) < errorV && this.position.distanceZ(z) < errorH) {
